@@ -33,3 +33,6 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 
 ## Estado del proyecto
 Frontend conectado al backend en desarrollo.
+
+## Estado del proyecto
+Backend conectado a MongoDB y endpoint /health funcionando.
