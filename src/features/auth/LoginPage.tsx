@@ -3,6 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { api } from "../../lib/api";
 import {
   loginSchema,
@@ -73,49 +75,87 @@ export function LoginPage() {
   };
 
   return (
-    <main>
-      <h1>Iniciar sesión</h1>
+    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+      <section className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mb-6">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-blue-600">
+            Mini Flota
+          </p>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="email">Correo electrónico</label>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Iniciar sesión
+          </h1>
 
-          <input
-            id="email"
-            type="email"
-            {...register("email")}
-          />
-
-          {errors.email && (
-            <p>{errors.email.message}</p>
-          )}
+          <p className="mt-2 text-sm text-slate-500">
+            Ingresa tus credenciales para continuar.
+          </p>
         </div>
 
-        <div>
-          <label htmlFor="password">Contraseña</label>
-
-          <input
-            id="password"
-            type="password"
-            {...register("password")}
-          />
-
-          {errors.password && (
-            <p>{errors.password.message}</p>
-          )}
-        </div>
-
-        {errors.root && (
-          <p>{errors.root.message}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
+        <form
+          className="space-y-5"
+          onSubmit={handleSubmit(onSubmit)}
         >
-          {isSubmitting ? "Ingresando..." : "Ingresar"}
-        </button>
-      </form>
+          <div>
+            <label
+              className="mb-1.5 block text-sm font-medium text-slate-700"
+              htmlFor="email"
+            >
+              Correo electrónico
+            </label>
+
+            <Input
+              id="email"
+              type="email"
+              placeholder="admin@miniflota.com"
+              {...register("email")}
+            />
+
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              className="mb-1.5 block text-sm font-medium text-slate-700"
+              htmlFor="password"
+            >
+              Contraseña
+            </label>
+
+            <Input
+              id="password"
+              type="password"
+              placeholder="Ingresa tu contraseña"
+              {...register("password")}
+            />
+
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {errors.root && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+              <p className="text-sm font-medium text-red-700">
+                {errors.root.message}
+              </p>
+            </div>
+          )}
+
+          <Button
+            className="w-full"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Ingresando..." : "Ingresar"}
+          </Button>
+        </form>
+      </section>
     </main>
   );
 }

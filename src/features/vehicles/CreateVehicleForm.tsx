@@ -1,6 +1,10 @@
+import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
 import { createVehicle } from "./vehicleApi";
 import type {
   CreateVehicleInput,
@@ -16,11 +20,12 @@ const initialForm: CreateVehicleInput = {
   status: "active",
 };
 
-const inputStyles =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
-
 const labelStyles =
   "mb-1.5 block text-sm font-medium text-slate-700";
+
+type ValidationErrorItem = {
+  msg?: unknown;
+};
 
 export function CreateVehicleForm() {
   const queryClient = useQueryClient();
@@ -28,8 +33,16 @@ export function CreateVehicleForm() {
   const [formData, setFormData] =
     useState<CreateVehicleInput>(initialForm);
 
+  const [errorMessage, setErrorMessage] =
+    useState<string | null>(null);
+
   const mutation = useMutation({
     mutationFn: createVehicle,
+
+    onMutate: () => {
+      setErrorMessage(null);
+    },
+
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["vehicles"],
@@ -37,13 +50,48 @@ export function CreateVehicleForm() {
 
       setFormData(initialForm);
     },
+
+    onError: (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        const detail: unknown = error.response?.data?.detail;
+
+        if (typeof detail === "string") {
+          setErrorMessage(detail);
+          return;
+        }
+
+        if (Array.isArray(detail)) {
+          const messages = detail
+            .map((item: ValidationErrorItem) => item.msg)
+            .filter(
+              (message): message is string =>
+                typeof message === "string",
+            );
+
+          if (messages.length > 0) {
+            setErrorMessage(messages.join(". "));
+            return;
+          }
+        }
+
+        if (!error.response) {
+          setErrorMessage(
+            "No se pudo conectar con el servidor.",
+          );
+          return;
+        }
+      }
+
+      setErrorMessage(
+        "Ocurrió un error inesperado al crear el vehículo.",
+      );
+    },
   });
 
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-
     mutation.mutate(formData);
   };
 
@@ -66,9 +114,8 @@ export function CreateVehicleForm() {
               Placa
             </label>
 
-            <input
+            <Input
               id="plate"
-              className={inputStyles}
               placeholder="ABC-1234"
               value={formData.plate}
               onChange={(event) =>
@@ -86,9 +133,8 @@ export function CreateVehicleForm() {
               Marca
             </label>
 
-            <input
+            <Input
               id="brand"
-              className={inputStyles}
               placeholder="Toyota"
               value={formData.brand}
               onChange={(event) =>
@@ -106,9 +152,8 @@ export function CreateVehicleForm() {
               Modelo
             </label>
 
-            <input
+            <Input
               id="model"
-              className={inputStyles}
               placeholder="Hilux"
               value={formData.model}
               onChange={(event) =>
@@ -126,9 +171,8 @@ export function CreateVehicleForm() {
               Año
             </label>
 
-            <input
+            <Input
               id="year"
-              className={inputStyles}
               type="number"
               min="1990"
               max={new Date().getFullYear()}
@@ -151,9 +195,8 @@ export function CreateVehicleForm() {
               Capacidad (kg)
             </label>
 
-            <input
+            <Input
               id="capacity_kg"
-              className={inputStyles}
               type="number"
               min="1"
               placeholder="1000"
@@ -173,9 +216,8 @@ export function CreateVehicleForm() {
               Estado
             </label>
 
-            <select
+            <Select
               id="status"
-              className={inputStyles}
               value={formData.status}
               onChange={(event) =>
                 setFormData({
@@ -186,15 +228,14 @@ export function CreateVehicleForm() {
             >
               <option value="active">Activo</option>
               <option value="inactive">Inactivo</option>
-            </select>
+            </Select>
           </div>
         </div>
 
-        {mutation.isError && (
+        {errorMessage && (
           <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
             <p className="text-sm font-medium text-red-700">
-              No se pudo crear el vehículo. Revisa los datos
-              ingresados.
+              {errorMessage}
             </p>
           </div>
         )}
@@ -208,15 +249,14 @@ export function CreateVehicleForm() {
         )}
 
         <div className="mt-6 flex justify-end">
-          <button
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-blue-300"
+          <Button
             type="submit"
             disabled={mutation.isPending}
           >
             {mutation.isPending
               ? "Creando..."
               : "Crear vehículo"}
-          </button>
+          </Button>
         </div>
       </form>
     </section>

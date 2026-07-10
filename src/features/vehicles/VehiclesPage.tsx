@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { CreateVehicleForm } from "./CreateVehicleForm";
 import { getVehicles } from "./vehicleApi";
+import { VehicleTable } from "./VehicleTable";
 
 export function VehiclesPage() {
   const {
@@ -65,70 +66,7 @@ export function VehiclesPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-left">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Placa
-                  </th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Marca
-                  </th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Modelo
-                  </th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Año
-                  </th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Capacidad
-                  </th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-200">
-                {vehicles?.map((vehicle) => (
-                  <tr
-                    key={vehicle.id}
-                    className="transition hover:bg-slate-50"
-                  >
-                    <td className="px-6 py-4 font-semibold text-slate-900">
-                      {vehicle.plate}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {vehicle.brand}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {vehicle.model}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {vehicle.year}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {vehicle.capacity_kg} kg
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                          vehicle.status === "active"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-200 text-slate-700"
-                        }`}
-                      >
-                        {vehicle.status === "active"
-                          ? "Activo"
-                          : "Inactivo"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <VehicleTable vehicles={vehicles ?? []} />
         </section>
       </div>
     </main>
