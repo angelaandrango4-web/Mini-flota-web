@@ -96,169 +96,158 @@ export function CreateVehicleForm() {
   };
 
   return (
-    <section>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Crear vehículo
-        </h2>
+    <form onSubmit={handleSubmit}>
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label className={labelStyles} htmlFor="plate">
+            Placa
+          </label>
 
-        <p className="mt-1 text-sm text-slate-500">
-          Ingresa la información del nuevo vehículo.
-        </p>
+          <Input
+            id="plate"
+            placeholder="ABC-1234"
+            value={formData.plate}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                plate: event.target.value.toUpperCase(),
+              })
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label className={labelStyles} htmlFor="brand">
+            Marca
+          </label>
+
+          <Input
+            id="brand"
+            placeholder="Toyota"
+            value={formData.brand}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                brand: event.target.value,
+              })
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label className={labelStyles} htmlFor="model">
+            Modelo
+          </label>
+
+          <Input
+            id="model"
+            placeholder="Hilux"
+            value={formData.model}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                model: event.target.value,
+              })
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label className={labelStyles} htmlFor="year">
+            Año
+          </label>
+
+          <Input
+            id="year"
+            type="number"
+            min="1990"
+            max={new Date().getFullYear()}
+            value={formData.year}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                year: Number(event.target.value),
+              })
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            className={labelStyles}
+            htmlFor="capacity_kg"
+          >
+            Capacidad (kg)
+          </label>
+
+          <Input
+            id="capacity_kg"
+            type="number"
+            min="1"
+            placeholder="1000"
+            value={formData.capacity_kg}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                capacity_kg: Number(event.target.value),
+              })
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label className={labelStyles} htmlFor="status">
+            Estado
+          </label>
+
+          <Select
+            id="status"
+            value={formData.status}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                status: event.target.value as VehicleStatus,
+              })
+            }
+          >
+            <option value="active">Activo</option>
+            <option value="inactive">Inactivo</option>
+          </Select>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <label className={labelStyles} htmlFor="plate">
-              Placa
-            </label>
-
-            <Input
-              id="plate"
-              placeholder="ABC-1234"
-              value={formData.plate}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  plate: event.target.value.toUpperCase(),
-                })
-              }
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelStyles} htmlFor="brand">
-              Marca
-            </label>
-
-            <Input
-              id="brand"
-              placeholder="Toyota"
-              value={formData.brand}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  brand: event.target.value,
-                })
-              }
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelStyles} htmlFor="model">
-              Modelo
-            </label>
-
-            <Input
-              id="model"
-              placeholder="Hilux"
-              value={formData.model}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  model: event.target.value,
-                })
-              }
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelStyles} htmlFor="year">
-              Año
-            </label>
-
-            <Input
-              id="year"
-              type="number"
-              min="1990"
-              max={new Date().getFullYear()}
-              value={formData.year}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  year: Number(event.target.value),
-                })
-              }
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              className={labelStyles}
-              htmlFor="capacity_kg"
-            >
-              Capacidad (kg)
-            </label>
-
-            <Input
-              id="capacity_kg"
-              type="number"
-              min="1"
-              placeholder="1000"
-              value={formData.capacity_kg}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  capacity_kg: Number(event.target.value),
-                })
-              }
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelStyles} htmlFor="status">
-              Estado
-            </label>
-
-            <Select
-              id="status"
-              value={formData.status}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  status: event.target.value as VehicleStatus,
-                })
-              }
-            >
-              <option value="active">Activo</option>
-              <option value="inactive">Inactivo</option>
-            </Select>
-          </div>
+      {errorMessage && (
+        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-sm font-medium text-red-700">
+            {errorMessage}
+          </p>
         </div>
+      )}
 
-        {errorMessage && (
-          <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-            <p className="text-sm font-medium text-red-700">
-              {errorMessage}
-            </p>
-          </div>
-        )}
-
-        {mutation.isSuccess && (
-          <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-            <p className="text-sm font-medium text-emerald-700">
-              Vehículo creado correctamente.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-6 flex justify-end">
-          <Button
-            type="submit"
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending
-              ? "Creando..."
-              : "Crear vehículo"}
-          </Button>
+      {mutation.isSuccess && (
+        <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+          <p className="text-sm font-medium text-emerald-700">
+            Vehículo creado correctamente.
+          </p>
         </div>
-      </form>
-    </section>
+      )}
+
+      <div className="mt-6 flex justify-end">
+        <Button
+          className="min-w-44"
+          type="submit"
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending
+            ? "Registrando..."
+            : "Registrar vehículo"}
+        </Button>
+      </div>
+    </form>
   );
 }

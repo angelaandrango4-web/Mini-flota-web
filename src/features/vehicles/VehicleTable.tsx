@@ -47,19 +47,38 @@ export function VehicleTable({
               {vehicle.plate}
             </TableCell>
 
-            <TableCell>{vehicle.brand}</TableCell>
-            <TableCell>{vehicle.model}</TableCell>
-            <TableCell>{vehicle.year}</TableCell>
-            <TableCell>{vehicle.capacity_kg} kg</TableCell>
+            <TableCell>
+              {vehicle.brand}
+            </TableCell>
+
+            <TableCell>
+              {vehicle.model}
+            </TableCell>
+
+            <TableCell>
+              {vehicle.year}
+            </TableCell>
+
+            <TableCell>
+              {vehicle.capacity_kg} kg
+            </TableCell>
 
             <TableCell>
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
                   vehicle.status === "active"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-slate-200 text-slate-700"
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                    : "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
                 }`}
               >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    vehicle.status === "active"
+                      ? "bg-emerald-500"
+                      : "bg-slate-400"
+                  }`}
+                />
+
                 {vehicle.status === "active"
                   ? "Activo"
                   : "Inactivo"}

@@ -7,9 +7,9 @@ export function Table({
   ...props
 }: TableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+    <div className="overflow-x-auto">
       <table
-        className={`w-full border-collapse text-left ${className}`}
+        className={`w-full min-w-[800px] border-collapse text-left ${className}`}
         {...props}
       />
     </div>
@@ -25,7 +25,7 @@ export function TableHeader({
 }: TableHeaderProps) {
   return (
     <thead
-      className={`bg-slate-50 ${className}`}
+      className={`border-b border-slate-800 bg-slate-950 ${className}`}
       {...props}
     />
   );
@@ -54,7 +54,7 @@ export function TableRow({
 }: TableRowProps) {
   return (
     <tr
-      className={`transition hover:bg-slate-50 ${className}`}
+      className={`transition-colors odd:bg-white even:bg-slate-50/60 hover:bg-amber-50 ${className}`}
       {...props}
     />
   );
@@ -68,7 +68,7 @@ export function TableHead({
 }: TableHeadProps) {
   return (
     <th
-      className={`whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-600 ${className}`}
+      className={`whitespace-nowrap px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-300 ${className}`}
       {...props}
     />
   );
@@ -82,7 +82,7 @@ export function TableCell({
 }: TableCellProps) {
   return (
     <td
-      className={`whitespace-nowrap px-6 py-4 text-slate-700 ${className}`}
+      className={`whitespace-nowrap px-6 py-4 text-sm text-slate-700 ${className}`}
       {...props}
     />
   );
