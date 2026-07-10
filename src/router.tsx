@@ -6,6 +6,7 @@ import {
 
 import { RootLayout } from "./components/RootLayout";
 import { LoginPage } from "./features/auth/LoginPage";
+import { VehiclesPage } from "./features/vehicles/VehiclesPage";
 
 const rootRoute = createRootRoute({
   component: RootLayout,
@@ -20,7 +21,7 @@ const loginRoute = createRoute({
 const vehiclesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/vehicles",
-  component: () => <h1>Vehículos</h1>,
+  component: VehiclesPage,
 });
 
 const routeTree = rootRoute.addChildren([
