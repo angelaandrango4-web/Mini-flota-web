@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -13,3 +13,25 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+
+  (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      const isUnauthorized =
+        error.response?.status === 401;
+
+      const isLoginRequest =
+        error.config?.url?.includes("/auth/login") ?? false;
+
+      if (isUnauthorized && !isLoginRequest) {
+        localStorage.removeItem("access_token");
+
+        window.location.replace("/login");
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);

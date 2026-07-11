@@ -21,7 +21,7 @@ export function VehiclesPage() {
 
   const handleLogout = async () => {
     localStorage.removeItem("access_token");
-    await navigate({ to: "/" });
+    await navigate({ to: "/login" });
   };
 
   if (isLoading) {
