@@ -1,24 +1,28 @@
 import axios from "axios";
 import {
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import { Button } from "../../components/ui/Button";
 import { Select } from "../../components/ui/Select";
-import { getDrivers } from "../drivers/driverApi";
+import type { Driver } from "../drivers/driverTypes";
 import { assignDriver } from "./vehicleApi";
 
 type AssignDriverFormProps = {
   vehicleId: string;
   currentDriverId?: string | null;
+  drivers: Driver[];
 };
 
 export function AssignDriverForm({
   vehicleId,
   currentDriverId = null,
+  drivers,
 }: AssignDriverFormProps) {
   const queryClient = useQueryClient();
 
@@ -28,14 +32,30 @@ export function AssignDriverForm({
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
-  const {
-    data: drivers,
-    isLoading: isLoadingDrivers,
-    isError: isDriversError,
-  } = useQuery({
-    queryKey: ["drivers"],
-    queryFn: getDrivers,
-  });
+  const [successMessage, setSuccessMessage] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedDriverId(currentDriverId ?? "");
+  }, [currentDriverId]);
+
+  useEffect(() => {
+    if (!successMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSuccessMessage(null);
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [successMessage]);
+
+  const hasChanged =
+    selectedDriverId !== "" &&
+    selectedDriverId !== (currentDriverId ?? "");
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -43,12 +63,17 @@ export function AssignDriverForm({
 
     onMutate: () => {
       setErrorMessage(null);
+      setSuccessMessage(null);
     },
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["vehicles"],
       });
+
+      setSuccessMessage(
+        "Conductor asignado correctamente.",
+      );
     },
 
     onError: (error: unknown) => {
@@ -87,77 +112,79 @@ export function AssignDriverForm({
       return;
     }
 
+    if (!hasChanged) {
+      return;
+    }
+
     mutation.mutate();
   };
 
-  if (isLoadingDrivers) {
-    return (
-      <p className="text-sm text-slate-500">
-        Cargando conductores...
-      </p>
-    );
-  }
-
-  if (isDriversError) {
-    return (
-      <p className="text-sm text-red-600">
-        No se pudieron cargar los conductores.
-      </p>
-    );
-  }
-
   return (
     <form
-      className="flex min-w-64 flex-col gap-2"
+      className="min-w-72"
       onSubmit={handleSubmit}
     >
-      <Select
-        aria-label="Seleccionar conductor"
-        value={selectedDriverId}
-        onChange={(event) => {
-          setSelectedDriverId(event.target.value);
-          setErrorMessage(null);
-        }}
-      >
-        <option value="">
-          Seleccionar conductor
-        </option>
-
-        {drivers?.map((driver) => (
-          <option
-            key={driver.id}
-            value={driver.id}
-          >
-            {driver.name} — {driver.license}
+      <div className="flex items-center gap-2">
+        <Select
+          aria-label="Seleccionar conductor"
+          className="min-w-48"
+          value={selectedDriverId}
+          onChange={(event) => {
+            setSelectedDriverId(
+              event.target.value,
+            );
+            setErrorMessage(null);
+            setSuccessMessage(null);
+          }}
+        >
+          <option value="">
+            Seleccionar conductor
           </option>
-        ))}
-      </Select>
 
-      <Button
-        className="w-full px-3 py-2 text-xs"
-        type="submit"
-        disabled={
-          mutation.isPending ||
-          !selectedDriverId
-        }
-      >
-        {mutation.isPending
-          ? "Asignando..."
-          : currentDriverId
-            ? "Cambiar conductor"
-            : "Asignar conductor"}
-      </Button>
+          {drivers.map((driver) => (
+            <option
+              key={driver.id}
+              value={driver.id}
+            >
+              {driver.name} — {driver.license}
+            </option>
+          ))}
+        </Select>
 
-      {errorMessage && (
-        <p className="text-xs font-medium text-red-600">
-          {errorMessage}
+        <Button
+          className="shrink-0 px-3 py-2 text-xs"
+          type="submit"
+          disabled={
+            mutation.isPending ||
+            !hasChanged
+          }
+        >
+          {mutation.isPending
+            ? "Guardando..."
+            : "Guardar"}
+        </Button>
+      </div>
+
+      {drivers.length === 0 && !currentDriverId && (
+        <p className="mt-2 text-xs text-slate-500">
+          No hay conductores disponibles.
         </p>
       )}
 
-      {mutation.isSuccess && (
-        <p className="text-xs font-medium text-emerald-700">
-          Conductor asignado correctamente.
-        </p>
+      {errorMessage && (
+        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+          <p className="text-xs font-medium text-red-700">
+            {errorMessage}
+          </p>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+          <p className="text-xs font-medium text-emerald-700">
+            {successMessage}
+          </p>
+        </div>
       )}
     </form>
   );

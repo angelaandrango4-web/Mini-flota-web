@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
 import { Button } from "../../components/ui/Button";
+import { getDrivers } from "../drivers/driverApi";
 import { CreateVehicleForm } from "./CreateVehicleForm";
 import { getVehicles } from "./vehicleApi";
 import { VehicleTable } from "./VehicleTable";
@@ -11,12 +12,22 @@ export function VehiclesPage() {
 
   const {
     data: vehicles,
-    isLoading,
-    isError,
-    refetch,
+    isLoading: isLoadingVehicles,
+    isError: isVehiclesError,
+    refetch: refetchVehicles,
   } = useQuery({
     queryKey: ["vehicles"],
     queryFn: getVehicles,
+  });
+
+  const {
+    data: drivers,
+    isLoading: isLoadingDrivers,
+    isError: isDriversError,
+    refetch: refetchDrivers,
+  } = useQuery({
+    queryKey: ["drivers"],
+    queryFn: getDrivers,
   });
 
   const handleLogout = async () => {
@@ -24,21 +35,28 @@ export function VehiclesPage() {
     await navigate({ to: "/login" });
   };
 
-  if (isLoading) {
+  const handleRetry = async () => {
+    await Promise.all([
+      refetchVehicles(),
+      refetchDrivers(),
+    ]);
+  };
+
+  if (isLoadingVehicles || isLoadingDrivers) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-amber-400" />
 
           <p className="text-sm font-medium text-slate-600">
-            Cargando vehículos...
+            Cargando información de la flota...
           </p>
         </div>
       </main>
     );
   }
 
-  if (isError) {
+  if (isVehiclesError || isDriversError) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
         <section className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
@@ -52,6 +70,7 @@ export function VehiclesPage() {
               aria-hidden="true"
             >
               <circle cx="12" cy="12" r="9" />
+
               <path
                 d="M12 7v6M12 17h.01"
                 strokeLinecap="round"
@@ -70,7 +89,7 @@ export function VehiclesPage() {
           <Button
             className="mt-6"
             type="button"
-            onClick={() => refetch()}
+            onClick={handleRetry}
           >
             Reintentar
           </Button>
@@ -82,9 +101,12 @@ export function VehiclesPage() {
   const vehicleCount = vehicles?.length ?? 0;
 
   const activeVehicles =
-    vehicles?.filter((vehicle) => vehicle.status === "active").length ?? 0;
+    vehicles?.filter(
+      (vehicle) => vehicle.status === "active",
+    ).length ?? 0;
 
-  const inactiveVehicles = vehicleCount - activeVehicles;
+  const inactiveVehicles =
+    vehicleCount - activeVehicles;
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -339,7 +361,10 @@ export function VehiclesPage() {
             </div>
           </div>
 
-          <VehicleTable vehicles={vehicles ?? []} />
+          <VehicleTable
+            vehicles={vehicles ?? []}
+            drivers={drivers ?? []}
+          />
         </section>
       </div>
 
