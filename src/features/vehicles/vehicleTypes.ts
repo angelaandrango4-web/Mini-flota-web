@@ -1,3 +1,5 @@
+import type { Driver } from "../drivers/driverTypes";
+
 export type VehicleStatus = "active" | "inactive";
 
 export interface Vehicle {
@@ -8,6 +10,7 @@ export interface Vehicle {
   year: number;
   capacity_kg: number;
   status: VehicleStatus;
+  driver: Driver | null;
 }
 
 export interface CreateVehicleInput {

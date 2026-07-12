@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "../../components/ui/Table";
 
+import { AssignDriverForm } from "./AssignDriverForm";
 import type { Vehicle } from "./vehicleTypes";
 
 type VehicleTableProps = {
@@ -26,6 +27,8 @@ export function VehicleTable({
           <TableHead>Año</TableHead>
           <TableHead>Capacidad</TableHead>
           <TableHead>Estado</TableHead>
+          <TableHead>Conductor</TableHead>
+          <TableHead>Asignación</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -34,7 +37,7 @@ export function VehicleTable({
           <TableRow>
             <TableCell
               className="py-10 text-center text-slate-500"
-              colSpan={6}
+              colSpan={8}
             >
               No hay vehículos registrados.
             </TableCell>
@@ -47,17 +50,11 @@ export function VehicleTable({
               {vehicle.plate}
             </TableCell>
 
-            <TableCell>
-              {vehicle.brand}
-            </TableCell>
+            <TableCell>{vehicle.brand}</TableCell>
 
-            <TableCell>
-              {vehicle.model}
-            </TableCell>
+            <TableCell>{vehicle.model}</TableCell>
 
-            <TableCell>
-              {vehicle.year}
-            </TableCell>
+            <TableCell>{vehicle.year}</TableCell>
 
             <TableCell>
               {vehicle.capacity_kg} kg
@@ -83,6 +80,33 @@ export function VehicleTable({
                   ? "Activo"
                   : "Inactivo"}
               </span>
+            </TableCell>
+
+            <TableCell>
+              {vehicle.driver ? (
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {vehicle.driver.name}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    {vehicle.driver.license}
+                  </p>
+                </div>
+              ) : (
+                <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                  Sin conductor
+                </span>
+              )}
+            </TableCell>
+
+            <TableCell>
+              <AssignDriverForm
+                vehicleId={vehicle.id}
+                currentDriverId={
+                  vehicle.driver?.id ?? null
+                }
+              />
             </TableCell>
           </TableRow>
         ))}
