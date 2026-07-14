@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
 import { Button } from "../../components/ui/Button";
+import { CreateDriverForm } from "../drivers/CreateDriverForm";
+import { getDrivers } from "../drivers/driverApi";
 import { CreateVehicleForm } from "./CreateVehicleForm";
 import { getVehicles } from "./vehicleApi";
 import { VehicleTable } from "./VehicleTable";
@@ -11,34 +13,54 @@ export function VehiclesPage() {
 
   const {
     data: vehicles,
-    isLoading,
-    isError,
-    refetch,
+    isLoading: isLoadingVehicles,
+    isError: isVehiclesError,
+    refetch: refetchVehicles,
   } = useQuery({
     queryKey: ["vehicles"],
     queryFn: getVehicles,
   });
 
+  const {
+    data: drivers,
+    isLoading: isLoadingDrivers,
+    isError: isDriversError,
+    refetch: refetchDrivers,
+  } = useQuery({
+    queryKey: ["drivers"],
+    queryFn: getDrivers,
+  });
+
   const handleLogout = async () => {
     localStorage.removeItem("access_token");
-    await navigate({ to: "/login" });
+
+    await navigate({
+      to: "/login",
+    });
   };
 
-  if (isLoading) {
+  const handleRetry = async () => {
+    await Promise.all([
+      refetchVehicles(),
+      refetchDrivers(),
+    ]);
+  };
+
+  if (isLoadingVehicles || isLoadingDrivers) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-amber-400" />
 
           <p className="text-sm font-medium text-slate-600">
-            Cargando vehículos...
+            Cargando información de la flota...
           </p>
         </div>
       </main>
     );
   }
 
-  if (isError) {
+  if (isVehiclesError || isDriversError) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
         <section className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
@@ -51,7 +73,12 @@ export function VehiclesPage() {
               strokeWidth="2"
               aria-hidden="true"
             >
-              <circle cx="12" cy="12" r="9" />
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+              />
+
               <path
                 d="M12 7v6M12 17h.01"
                 strokeLinecap="round"
@@ -70,7 +97,7 @@ export function VehiclesPage() {
           <Button
             className="mt-6"
             type="button"
-            onClick={() => refetch()}
+            onClick={handleRetry}
           >
             Reintentar
           </Button>
@@ -82,9 +109,13 @@ export function VehiclesPage() {
   const vehicleCount = vehicles?.length ?? 0;
 
   const activeVehicles =
-    vehicles?.filter((vehicle) => vehicle.status === "active").length ?? 0;
+    vehicles?.filter(
+      (vehicle) =>
+        vehicle.status === "active",
+    ).length ?? 0;
 
-  const inactiveVehicles = vehicleCount - activeVehicles;
+  const inactiveVehicles =
+    vehicleCount - activeVehicles;
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -114,8 +145,17 @@ export function VehiclesPage() {
                   strokeLinejoin="round"
                 />
 
-                <circle cx="7" cy="17" r="1.5" />
-                <circle cx="17" cy="17" r="1.5" />
+                <circle
+                  cx="7"
+                  cy="17"
+                  r="1.5"
+                />
+
+                <circle
+                  cx="17"
+                  cy="17"
+                  r="1.5"
+                />
 
                 <path
                   d="M3 15h2M9 15h5M18.5 15H20"
@@ -168,13 +208,13 @@ export function VehiclesPage() {
           </h1>
 
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            Registra nuevos vehículos y consulta el estado actual de la flota
-            desde un solo lugar.
+            Registra vehículos y conductores, consulta el estado de la flota y
+            administra sus asignaciones desde un solo lugar.
           </p>
         </section>
 
         <section className="mb-8 grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <aside className="grid content-start gap-4 sm:grid-cols-3 lg:grid-cols-1">
             <article className="rounded-2xl border border-slate-200 border-t-4 border-t-amber-400 bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
@@ -210,8 +250,17 @@ export function VehiclesPage() {
                       strokeLinejoin="round"
                     />
 
-                    <circle cx="7" cy="17" r="1.5" />
-                    <circle cx="17" cy="17" r="1.5" />
+                    <circle
+                      cx="7"
+                      cy="17"
+                      r="1.5"
+                    />
+
+                    <circle
+                      cx="17"
+                      cy="17"
+                      r="1.5"
+                    />
 
                     <path
                       d="M3 15h2M9 15h5M18.5 15H20"
@@ -243,7 +292,11 @@ export function VehiclesPage() {
                     strokeWidth="2"
                     aria-hidden="true"
                   >
-                    <circle cx="12" cy="12" r="8" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="8"
+                    />
 
                     <path
                       d="m8.5 12 2.3 2.3 4.8-5"
@@ -276,7 +329,11 @@ export function VehiclesPage() {
                     strokeWidth="2"
                     aria-hidden="true"
                   >
-                    <circle cx="12" cy="12" r="8" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="8"
+                    />
 
                     <path
                       d="M10 9v6M14 9v6"
@@ -288,38 +345,84 @@ export function VehiclesPage() {
             </article>
           </aside>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-6 flex items-start gap-4 border-b border-slate-200 pb-5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12 5v14M5 12h14"
-                    strokeLinecap="round"
-                  />
-                </svg>
+          <div className="grid gap-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="mb-6 flex items-start gap-4 border-b border-slate-200 pb-5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 5v14M5 12h14"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">
+                    Registrar nuevo vehículo
+                  </h2>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Completa la información requerida para añadir una unidad a
+                    la flota.
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h2 className="text-xl font-semibold text-slate-950">
-                  Registrar nuevo vehículo
-                </h2>
+              <CreateVehicleForm />
+            </section>
 
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Completa la información requerida para añadir una unidad a la
-                  flota.
-                </p>
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="mb-6 flex items-start gap-4 border-b border-slate-200 pb-5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      cx="12"
+                      cy="8"
+                      r="3"
+                    />
+
+                    <path
+                      d="M6 19c0-3 2.5-5 6-5s6 2 6 5"
+                      strokeLinecap="round"
+                    />
+
+                    <path
+                      d="M19 8v4M17 10h4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">
+                    Registrar nuevo conductor
+                  </h2>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Registra un conductor para que pueda ser asignado a uno de
+                    los vehículos disponibles.
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <CreateVehicleForm />
-          </section>
+              <CreateDriverForm />
+            </section>
+          </div>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -339,7 +442,10 @@ export function VehiclesPage() {
             </div>
           </div>
 
-          <VehicleTable vehicles={vehicles ?? []} />
+          <VehicleTable
+            vehicles={vehicles ?? []}
+            drivers={drivers ?? []}
+          />
         </section>
       </div>
 
